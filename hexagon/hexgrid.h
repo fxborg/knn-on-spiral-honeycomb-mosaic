@@ -101,7 +101,7 @@ namespace hex {
 			double y = (M.f2 * h.q() + M.f3 * h.r())*m_radius;
 			return Point(x, y);
 		}
-		vector<Hexagon> belongs_to_centor(const Hexagon &h)
+		vector<Hexagon> belongs_to_center(const Hexagon &h)
 		{
 			vector<Hexagon> results{};
 			int mod = int(h.q() - h.r() * 2) % 7;
@@ -111,22 +111,32 @@ namespace hex {
 
 		int to_seven_num(int n) {
 			switch (n){
-			case 0:
-				return 0;
-			case 1:
-				return 5;
-			case 2:
-				return 1;
-			case 3:
-				return 6;
-			case 4:
-				return 3;
-			case 5:
-				return 4;
-			case 6:
-				return 2;
-			default:
-				return 0;
+			case 0:	return 0;
+			case 1:	return 5;
+			case 2:	return 1;
+			case 3:	return 6;
+			case 4:	return 3;
+			case 5:	return 4;
+			case 6:	return 2;
+			default:return 0;
+			}
+		}
+		void set_index(Hexagon idx,Hexagon data) 
+		{
+			unordered_map< Hexagon, vector<pair<Hexagon, uint8_t>>, hash > x;
+			auto it = m_indexes.find(idx);
+			// インデックスにない場合
+			if (it == end(m_indexes))
+			{
+
+				Hexagon diff = idx - data;
+
+				m_indexes[idx] = {{ data,1}};
+
+			}
+			else
+			{
+			
 			}
 		}
 		Hexagon pixel_to_hex(const Point &p)
@@ -240,14 +250,16 @@ namespace hex {
 			Hexagon(+1,-1,+0)	// 南東
 		};
 
-		const std::vector<vector<Hexagon>> m_index_directions = {
-			{Hexagon(+0,+0,+0) },	// 中央
-			{Hexagon(+0,+1,-1), Hexagon(+1,-2,+1), Hexagon(-2,+0,+2)},	// 南
-			{Hexagon(+1,+0,-1), Hexagon(-1,-1,+2), Hexagon(-2,+2,+0)},	// 南西
-			{Hexagon(+1,-1,+0), Hexagon(-2,+1,+1), Hexagon(+0,+2,-2)},	// 北西
-			{Hexagon(+0,-1,+1), Hexagon(-1,+2,-1), Hexagon(+2,+0,-2)},	// 北
-			{Hexagon(-1,+0,+1), Hexagon(+1,+1,-2), Hexagon(+2,-2,+0)},	// 北東
-			{Hexagon(-1,+1,+0), Hexagon(+2,-1,-1), Hexagon(+0,-2,+2)}	// 南東
+		const std::vector<vector<pair<Hexagon, uint8_t>>> m_index_directions = {
+			{{ Hexagon(+0,+0,+0),0b10111111 }/*中央*/},
+			/*------------------------------------------------------------------------------------------------*/
+			{{ Hexagon(+0,+1,-1),0b10100011 }/* 南 */,{Hexagon(+1,-2,+1),0 }/**/,{Hexagon(-2,+0,+2), 0}/**/ },
+			{{ Hexagon(+1,+0,-1),0b10000111 }/*南西*/,{Hexagon(-1,-1,+2),0 }/**/,{Hexagon(-2,+2,+0),0 }/**/ }, 
+			{{ Hexagon(+1,-1,+0),0b10001110 }/*北西*/,{Hexagon(-2,+1,+1),0 }/**/,{Hexagon(+0,+2,-2),0 }/**/ }, 
+			{{ Hexagon(+0,-1,+1),0b10011100 }/* 北 */,{Hexagon(-1,+2,-1),0 }/**/,{Hexagon(+2,+0,-2),0 }/**/ }, 
+			{{ Hexagon(-1,+0,+1),0b10111000 }/*北東*/,{Hexagon(+1,+1,-2),0 }/**/,{Hexagon(+2,-2,+0),0 }/**/ }, 
+			{{ Hexagon(-1,+1,+0),0b10110001 }/*南東*/,{Hexagon(+2,-1,-1),0 }/**/,{Hexagon(+0,-2,+2),0 }/**/ }
+			/*------------------------------------------------------------------------------------------------*/
 		};
 
 		unordered_map< Hexagon, vector<pair<Hexagon, uint8_t>>, hash > m_indexes;
