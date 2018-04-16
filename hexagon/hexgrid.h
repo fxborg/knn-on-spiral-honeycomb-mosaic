@@ -1,6 +1,7 @@
 ﻿#define _USE_MATH_DEFINES
 #include <cmath>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include "hexagon.h"
 
@@ -9,6 +10,7 @@ using std::abs;
 using std::ceil;
 using std::pair;
 using std::vector;
+using std::map;
 using std::unordered_map;
 using hex::Hexagon;
 
@@ -101,7 +103,7 @@ namespace hex {
 			double y = (M.f2 * h.q() + M.f3 * h.r())*m_radius;
 			return Point(x, y);
 		}
-		vector<Hexagon> belongs_to_center(const Hexagon &h)
+		vector<pair<Hexagon,uint8_t>> belongs_to_center(const Hexagon &h)
 		{
 			vector<Hexagon> results{};
 			int mod = int(h.q() - h.r() * 2) % 7;
@@ -121,22 +123,19 @@ namespace hex {
 			default:return 0;
 			}
 		}
-		void set_index(Hexagon idx,Hexagon data) 
+		void set_index(Hexagon idx,Hexagon data, uint8_t filter) 
 		{
-			unordered_map< Hexagon, vector<pair<Hexagon, uint8_t>>, hash > x;
+			unordered_map< Hexagon, unordered_map<uint8_t,Hexagon>, hash > x;
 			auto it = m_indexes.find(idx);
 			// インデックスにない場合
 			if (it == end(m_indexes))
 			{
-
-				Hexagon diff = idx - data;
-
-				m_indexes[idx] = {{ data,1}};
-
+				m_indexes[idx] = {{data,filter}};
 			}
 			else
 			{
-			
+				if(m_indexes[idx].find(data)==end(m_indexes[idx]))
+					m_indexes[idx][data] = filter;
 			}
 		}
 		Hexagon pixel_to_hex(const Point &p)
@@ -155,6 +154,11 @@ namespace hex {
 			auto it = m_hexagon_map.find(hex);
 			if (it != m_hexagon_map.end()) {
 				m_hexagon_map[hex].push_back(pt);
+				vector<pair<Hexagon, uint8_t>> belongs = belongs_to_center(hex);
+				for (auto idx = belongs.begin(); idx != end(belongs); ++idx) 
+				{
+					set_index(idx->first, hex, idx->second);				
+				}
 			}
 			else
 			{
@@ -253,18 +257,16 @@ namespace hex {
 		const std::vector<vector<pair<Hexagon, uint8_t>>> m_index_directions = {
 			{{ Hexagon(+0,+0,+0),0b10111111 }/*中央*/},
 			/*------------------------------------------------------------------------------------------------*/
-			{{ Hexagon(+0,+1,-1),0b10100011 }/* 南 */,{Hexagon(+1,-2,+1),0 }/**/,{Hexagon(-2,+0,+2), 0}/**/ },
-			{{ Hexagon(+1,+0,-1),0b10000111 }/*南西*/,{Hexagon(-1,-1,+2),0 }/**/,{Hexagon(-2,+2,+0),0 }/**/ }, 
-			{{ Hexagon(+1,-1,+0),0b10001110 }/*北西*/,{Hexagon(-2,+1,+1),0 }/**/,{Hexagon(+0,+2,-2),0 }/**/ }, 
-			{{ Hexagon(+0,-1,+1),0b10011100 }/* 北 */,{Hexagon(-1,+2,-1),0 }/**/,{Hexagon(+2,+0,-2),0 }/**/ }, 
-			{{ Hexagon(-1,+0,+1),0b10111000 }/*北東*/,{Hexagon(+1,+1,-2),0 }/**/,{Hexagon(+2,-2,+0),0 }/**/ }, 
-			{{ Hexagon(-1,+1,+0),0b10110001 }/*南東*/,{Hexagon(+2,-1,-1),0 }/**/,{Hexagon(+0,-2,+2),0 }/**/ }
+			{{ Hexagon(+0,+1,-1),0b10100011 }/* 南 */,{Hexagon(+1,-2,+1),0b00001100 }/*北北西*/,{Hexagon(-2,+0,+2),0b00010000}/*北西２*/ },
+			{{ Hexagon(+1,+0,-1),0b10000111 }/*南西*/,{Hexagon(-1,-1,+2),0b00011000 }/*北北東*/,{Hexagon(-2,+2,+0),0b00100000}/*南東２*/ }, 
+			{{ Hexagon(+1,-1,+0),0b10001110 }/*北西*/,{Hexagon(-2,+1,+1),0b00110000 }/* 東２ */,{Hexagon(+0,+2,-2),0b00000001}/* 南２ */ }, 
+			{{ Hexagon(+0,-1,+1),0b10011100 }/* 北 */,{Hexagon(-1,+2,-1),0b00100001 }/*南南東*/,{Hexagon(+2,+0,-2),0b00000010}/*南西２*/ }, 
+			{{ Hexagon(-1,+0,+1),0b10111000 }/*北東*/,{Hexagon(+1,+1,-2),0b00000011 }/*南南西*/,{Hexagon(+2,-2,+0),0b00000100}/*北西２*/ }, 
+			{{ Hexagon(-1,+1,+0),0b10110001 }/*南東*/,{Hexagon(+2,-1,-1),0b00000110 }/* 西２ */,{Hexagon(+0,-2,+2),0b00001000}/* 北２ */ }
 			/*------------------------------------------------------------------------------------------------*/
 		};
-
-		unordered_map< Hexagon, vector<pair<Hexagon, uint8_t>>, hash > m_indexes;
+		unordered_map< Hexagon, map<Hexagon,uint8_t, hash >, hash > m_indexes;
 
 	};
 }
-
 
