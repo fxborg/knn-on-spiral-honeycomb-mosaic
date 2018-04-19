@@ -1,0 +1,93 @@
+#pragma once
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <algorithm>
+using std::max;
+int is_direction(int q, int r, int s) {
+
+	if (q == 0 && r == 0 && s == 0) return 0;
+
+	if (q == 0)
+	{
+		if (r > 0)
+		{
+			//ñkÅ@äp
+		}
+		else
+		{
+			//ìÏÅ@äp
+		}
+	}
+	else if (r == 0)
+	{
+		if (q > 0)
+		{
+			//ñkìåÅ@äp
+		}
+		else
+		{
+			//ìÏêºÅ@äp
+		}
+	}
+	else if (s == 0)
+	{
+		if (r > 0) 
+		{
+			//ñkêºÅ@äp
+
+		}
+		else 
+		{
+			//ìÏìåÅ@äp
+		}
+	}
+	else
+	{
+		int aq = abs(q);
+		int ar = abs(r);
+		int as = abs(s);
+
+		if (aq > ar && aq> as)
+		{
+			if(q>0)
+			{ 
+				// ìåÅ@ï”
+			}
+			else
+			{
+				// êºÅ@ï”
+			}
+		}
+		else
+		{
+			if (ar > as)
+			{
+				if (r > 0) 
+				{
+					//ñkêºÅ@ï”
+				}
+				else
+				{
+					//ìÏìåÅ@ï”
+
+				}
+
+			}
+			else 
+			{
+				if (s > 0)
+				{
+					//ìÏêºÅ@ï”
+				}
+				else 
+				{
+					//ñkìåÅ@ï”
+				}
+
+			}
+
+		}
+	}
+
+
+}
