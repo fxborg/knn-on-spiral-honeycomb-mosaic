@@ -265,7 +265,7 @@ namespace hex {
 			{{ Hexagon(-1,+1,+0),0b10110001 }/*南東*/,{Hexagon(+2,-1,-1),0b00000110 }/* 西２ */,{Hexagon(+0,-2,+2),0b00001000}/* 北２ */ }
 			/*------------------------------------------------------------------------------------------------*/
 		};
-		unordered_map< Hexagon, map<Hexagon,uint8_t, hash >, hash > m_indexes;
+		unordered_map< Hexagon, map<Hexagon,uint8_t >, hash > m_indexes;
 
 	};
 }
