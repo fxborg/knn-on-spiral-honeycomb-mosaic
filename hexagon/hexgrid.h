@@ -62,6 +62,11 @@ namespace hex {
 		explicit HexGrid(double radius_, Layout layout_) : m_radius(radius_), m_orientation(set_orientation(layout_)) {}
 
 
+		Hexagon opposite(const Hexagon & hex)
+		{
+			return	Hexagon( -1 * hex.q(), -1 * hex.r(), -1 * hex.s() );
+		}
+
 		double hex_length(Hexagon hex)
 		{
 			return ((abs(hex.q()) + abs(hex.r()) + abs(hex.s())) / 2.0);
@@ -103,15 +108,21 @@ namespace hex {
 			double y = (M.f2 * h.q() + M.f3 * h.r())*m_radius;
 			return Point(x, y);
 		}
-		vector<pair<Hexagon,uint8_t>> belongs_to_center(const Hexagon &h)
+		vector<pair<Hexagon,uint8_t>> belongs_to_center(const Hexagon &h) const
 		{
 			vector<Hexagon> results{};
 			int mod = int(h.q() - h.r() * 2) % 7;
-			int n = to_seven_num(mod);
+			int n = _to_seven_num(mod);
 			return m_index_directions[n];
 		}
+		int to_seven_num(const Hexagon &h) const
+		{
+			int mod = int(h.q() - h.r() * 2) % 7;
+			return _to_seven_num(mod);
 
-		int to_seven_num(int n) {
+		}
+
+		int _to_seven_num(int n) const {
 			switch (n){
 			case 0:	return 0;
 			case 1:	return 5;
@@ -122,6 +133,20 @@ namespace hex {
 			case 6:	return 2;
 			default:return 0;
 			}
+		}
+
+		int get_filter(int n){
+			switch (n) {
+			case 0: return	0b10000000;
+			case 1: return	0b00000001;
+			case 2: return	0b00000010;
+			case 3: return	0b00000100;
+			case 4: return	0b00001000;
+			case 5: return	0b00010000;
+			case 6: return	0b00100000;
+			default : return	0b10000000;
+			}
+
 		}
 		void set_index(Hexagon idx,Hexagon data, uint8_t filter) 
 		{
@@ -138,6 +163,7 @@ namespace hex {
 					m_indexes[idx][data] = filter;
 			}
 		}
+
 		Hexagon pixel_to_hex(const Point &p)
 		{
 			const Point pt{ p.x / m_radius , p.y / m_radius };
@@ -147,7 +173,7 @@ namespace hex {
 			return Hexagon(q, r, -q - r);
 
 		}
-
+		
 
 		void add_point(const Hexagon & hex, const Point & pt)
 		{
@@ -208,10 +234,18 @@ namespace hex {
 		unordered_map<int, vector<Hexagon>> neighbors(const Hexagon & center, double distance) {
 			// 点群が存在するグリッド座標を格納する
 			unordered_map<int, vector<Hexagon>> results{};
+			// 起点のインデックス位置を確認
+			int seven_num = to_seven_num(center);
+			int filter = get_filter(seven_num);
+			Hexagon index_pos = opposite(m_hex_directions[seven_num]);
+
 			// 原点のセルに点群が存在するかを確認
 			if (m_hexagon_map.find(center) != m_hexagon_map.end()) {
 				results[0] = { center };
 			}
+
+
+
 			// グリッド間の距離の計算
 			double grid_size = (2 * m_radius* sqrt(3));
 			// 探索対象範囲の上限
@@ -253,6 +287,9 @@ namespace hex {
 			Hexagon(+1,+0,-1),	// 北東
 			Hexagon(+1,-1,+0)	// 南東
 		};
+
+		
+
 
 		const std::vector<vector<pair<Hexagon, uint8_t>>> m_index_directions = {
 			{{ Hexagon(+0,+0,+0),0b10111111 }/*中央*/},
