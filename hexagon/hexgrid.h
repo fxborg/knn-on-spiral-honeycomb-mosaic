@@ -280,6 +280,16 @@ namespace hex {
 		// 7方向へ移動する為の座標
 		const std::vector<Hexagon> m_hex_directions = {
 			Hexagon(+0,+0,+0),	// 中央
+			Hexagon(+1,-3,+2),	// 南
+			Hexagon(-2,-1,+3),	// 南西
+			Hexagon(-3,+2,+1),	// 北西
+			Hexagon(-1,+3,-2),	// 北
+			Hexagon(+2,+1,-3),	// 北東
+			Hexagon(+3,-2,-1)	// 南東
+		};
+
+		const std::vector<Hexagon> m_honeycomb_directions = {
+			Hexagon(+0,+0,+0),	// 中央
 			Hexagon(+0,-1,+1),	// 南
 			Hexagon(-1,+0,+1),	// 南西
 			Hexagon(-1,+1,+0),	// 北西
@@ -288,7 +298,8 @@ namespace hex {
 			Hexagon(+1,-1,+0)	// 南東
 		};
 
-		
+
+
 
 
 		const std::vector<vector<pair<Hexagon, uint8_t>>> m_index_directions = {
